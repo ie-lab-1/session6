@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request, Response
 import json
-app = Flask(__name__)
 
 books = [
 	{
@@ -97,12 +96,14 @@ books = [
 
 DEFAULT_PAGE_LIMIT = 3;
 
+application = Flask(__name__)
+
 #GET /books
-@app.route('/books')
+@application.route('/books')
 def get_books():
   	return jsonify({'books': books})
 
-@app.route('/books/<int:isbn>')
+@application.route('/books/<int:isbn>')
 def get_book_by_isbn(isbn):
 	return_value = {}
 	for book in books:
@@ -114,12 +115,11 @@ def get_book_by_isbn(isbn):
 	return jsonify(return_value)
 
 #GET /books/page/<int:page_number>
-@app.route('/books/page/<int:page_number>')
+@application.route('/books/page/<int:page_number>')
 def get_paginated_books(page_number):
 	print(type(request.args.get('limit')))
 	LIMIT = request.args.get('limit', DEFAULT_PAGE_LIMIT, int)
 	return jsonify({'books': books[page_number*LIMIT-LIMIT:page_number*LIMIT]})
-
 
 def validBookObject(bookObject):
 	if ("name" in bookObject and "price" in bookObject and "isbn" in bookObject):
@@ -128,7 +128,7 @@ def validBookObject(bookObject):
 		return False
 
 #POST /books
-@app.route('/books', methods=['POST'])
+@application.route('/books', methods=['POST'])
 def add_book():
 	request_data = request.get_json()
 	if(validBookObject(request_data)):
@@ -157,7 +157,7 @@ def valid_put_request_data(request_data):
 		return False;
 
 #PUT /books/page/<int:page_number>
-@app.route('/books/<int:isbn>', methods=['PUT'])
+@application.route('/books/<int:isbn>', methods=['PUT'])
 def replace_book(isbn):
 	request_data = request.get_json()
 	if(not valid_put_request_data(request_data)):
@@ -189,7 +189,7 @@ def valid_patch_request_data(request_data):
 		return False;
 
 #PATCH /books/page/<int:page_number>
-@app.route('/books/<int:isbn>', methods=['PATCH'])
+@application.route('/books/<int:isbn>', methods=['PATCH'])
 def update_book(isbn):
 	request_data = request.get_json()
 	if(not valid_patch_request_data(request_data)):
@@ -212,7 +212,7 @@ def update_book(isbn):
 	return response
 
 #DELETE /books/page/<int:page_number>
-@app.route('/books/<int:isbn>', methods=['DELETE'])
+@application.route('/books/<int:isbn>', methods=['DELETE'])
 def delete_book(isbn):
 	i = 0;
 	for book in books:
@@ -226,4 +226,10 @@ def delete_book(isbn):
 	}
 	response = Response(json.dumps(invalidBookObjectErrorMsg), status=404, mimetype='application/json')
 	return response
-app.run(port=80)
+
+# run the app.
+if __name__ == "__main__":
+    # Setting debug to True enables debug output. This line should be
+    # removed before deploying a production app.
+    application.debug = True
+    application.run()
