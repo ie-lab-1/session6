@@ -17,4 +17,4 @@ To play with the app right away, you can use the in-memory list, now you can lau
 ```
 $ python application.py
 ```
-And point your browser to http://0.0.0.0:80.
+And point your browser to http://0.0.0.0:80/books.
